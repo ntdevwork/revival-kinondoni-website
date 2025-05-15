@@ -58,9 +58,9 @@ const AdminLayout = () => {
             </Link>
             <span className="hidden sm:inline">{currentUser?.name || currentUser?.email}</span>
             <Button
-              variant="outline"
+              variant="destructive"
               size="sm"
-              className="border-white text-white hover:bg-white hover:text-church-orange"
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold border-none"
               onClick={() => logout()}
             >
               <LogOut className="h-4 w-4 mr-1" /> 
