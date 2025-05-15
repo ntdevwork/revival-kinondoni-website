@@ -1,82 +1,132 @@
 
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
-import { useLanguage } from '../context/LanguageContext';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import LanguageSwitcher from './LanguageSwitcher';
+import { useLanguage } from '../context/LanguageContext';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '../hooks/use-auth';
+import { Menu } from 'lucide-react';
 
-const Header: React.FC = () => {
-  const { t } = useLanguage();
+const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { t } = useLanguage();
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
 
+  // Navigation Links
   const navLinks = [
-    { name: t('home'), path: '/' },
-    { name: t('about'), path: '/about' },
-    { name: t('events'), path: '/events' },
-    { name: t('sermons'), path: '/sermons' },
-    { name: t('contact'), path: '/contact' },
+    { path: "/", label: t('home') },
+    { path: "/about", label: t('about') },
+    { path: "/events", label: t('events') },
+    { path: "/contact", label: t('contact') },
   ];
 
   return (
-    <header className="bg-white shadow-md sticky top-0 z-50">
-      <div className="church-container flex items-center justify-between py-4">
-        {/* Logo */}
-        <Link to="/" className="flex items-center">
-          <div className="bg-church-orange p-2 rounded-md mr-2">
-            <span className="text-white font-bold">KRC</span>
-          </div>
-          <div className="hidden md:block">
-            <div className="text-church-gray font-bold">Kinondoni Revival Church</div>
-            <div className="text-xs text-church-gray">Tanzania Assemblies of God</div>
-          </div>
-        </Link>
+    <header className="sticky top-0 z-50 bg-white shadow-md">
+      <div className="church-container py-4">
+        <div className="flex justify-between items-center">
+          {/* Logo */}
+          <Link to="/" className="text-xl lg:text-2xl font-bold text-church-orange">
+            KRC<span className="hidden md:inline"> TANZANIA</span>
+          </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-6">
-          {navLinks.map((link) => (
-            <Link
-              key={link.path}
-              to={link.path}
-              className="text-church-gray hover:text-church-orange font-medium transition-colors duration-200"
-            >
-              {link.name}
-            </Link>
-          ))}
-          <LanguageSwitcher />
-        </nav>
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-6">
+            <div className="flex space-x-6">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={`transition-colors hover:text-church-orange ${
+                    location.pathname === link.path ? "font-medium text-church-orange" : "text-gray-600"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
 
-        {/* Mobile Menu Button */}
-        <button 
-          className="md:hidden text-church-gray p-2" 
-          onClick={toggleMenu}
-          aria-label="Toggle menu"
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
+              {/* Admin Link - only visible if authenticated */}
+              {isAuthenticated && (
+                <Link
+                  to="/admin"
+                  className={`transition-colors hover:text-church-orange ${
+                    location.pathname.startsWith("/admin") ? "font-medium text-church-orange" : "text-gray-600"
+                  }`}
+                >
+                  Admin
+                </Link>
+              )}
 
-      {/* Mobile Navigation */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-white shadow-lg absolute top-full left-0 right-0 z-50">
-          <div className="church-container py-4 flex flex-col space-y-4">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className="text-church-gray hover:text-church-orange font-medium p-2 transition-colors duration-200"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {link.name}
-              </Link>
-            ))}
-            <div className="py-2">
-              <LanguageSwitcher />
+              {/* Login Button - only visible if not authenticated */}
+              {!isAuthenticated && (
+                <Link to="/login" className="text-gray-600 hover:text-church-orange">
+                  Admin Login
+                </Link>
+              )}
             </div>
+            <LanguageSwitcher />
+          </nav>
+
+          {/* Mobile Menu Button */}
+          <div className="flex items-center space-x-4 md:hidden">
+            <LanguageSwitcher />
+            <button
+              onClick={toggleMenu}
+              className="text-gray-600 hover:text-church-orange"
+              aria-label="Toggle menu"
+            >
+              <Menu className="h-6 w-6" />
+            </button>
           </div>
         </div>
-      )}
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <nav className="md:hidden py-4 mt-4 border-t">
+            <div className="flex flex-col space-y-3">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={`block transition-colors hover:text-church-orange ${
+                    location.pathname === link.path ? "font-medium text-church-orange" : "text-gray-600"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+              
+              {/* Admin Link - only visible if authenticated */}
+              {isAuthenticated && (
+                <Link
+                  to="/admin"
+                  className={`block transition-colors hover:text-church-orange ${
+                    location.pathname.startsWith("/admin") ? "font-medium text-church-orange" : "text-gray-600"
+                  }`}
+                >
+                  Admin
+                </Link>
+              )}
+
+              {/* Login Button - only visible if not authenticated */}
+              {!isAuthenticated && (
+                <Link to="/login" className="block text-gray-600 hover:text-church-orange">
+                  Admin Login
+                </Link>
+              )}
+            </div>
+          </nav>
+        )}
+      </div>
     </header>
   );
 };
