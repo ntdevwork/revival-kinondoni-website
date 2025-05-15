@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/use-auth';
 import { Navigate, Outlet, Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useLanguage } from '../context/LanguageContext';
+import { ArrowLeft, LogOut } from 'lucide-react';
 
 const AdminLayout = () => {
   const { currentUser, logout, isAuthenticated, isLoading } = useAuth();
@@ -51,14 +52,19 @@ const AdminLayout = () => {
             </span>
           </div>
           <div className="flex items-center space-x-4">
-            <span>{currentUser?.name || currentUser?.email}</span>
+            <Link to="/" className="flex items-center text-white hover:text-white/80 mr-4">
+              <ArrowLeft className="mr-1 h-4 w-4" />
+              <span className="hidden sm:inline">Back to Website</span>
+            </Link>
+            <span className="hidden sm:inline">{currentUser?.name || currentUser?.email}</span>
             <Button
               variant="outline"
               size="sm"
               className="border-white text-white hover:bg-white hover:text-church-orange"
               onClick={() => logout()}
             >
-              Logout
+              <LogOut className="h-4 w-4 mr-1" /> 
+              <span className="hidden sm:inline">Logout</span>
             </Button>
           </div>
         </div>
