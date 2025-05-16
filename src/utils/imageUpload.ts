@@ -3,6 +3,7 @@ import { toast } from "@/hooks/use-toast";
 
 export interface ImageUploadResult {
   imageUrl: string | null;
+  base64?: string;
   error?: string;
 }
 
