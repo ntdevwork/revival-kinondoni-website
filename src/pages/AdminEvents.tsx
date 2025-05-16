@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogD
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, Upload, Image } from "lucide-react";
 
 // In a real app, this would come from a database
 const defaultEvents = [
@@ -40,12 +40,14 @@ const AdminEvents = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentEvent, setCurrentEvent] = useState<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Event form state
   const [eventTitle, setEventTitle] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [eventDescription, setEventDescription] = useState("");
   const [eventImage, setEventImage] = useState("");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   
   useEffect(() => {
     // Load events from localStorage or use default
@@ -64,6 +66,7 @@ const AdminEvents = () => {
     setEventDate("");
     setEventDescription("");
     setEventImage("");
+    setImagePreview(null);
     setIsDialogOpen(true);
   };
 
@@ -73,12 +76,47 @@ const AdminEvents = () => {
     setEventDate(event.date);
     setEventDescription(event.description);
     setEventImage(event.image);
+    setImagePreview(event.image);
     setIsDialogOpen(true);
   };
 
   const handleDeleteClick = (event: any) => {
     setCurrentEvent(event);
     setIsDeleteDialogOpen(true);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      toast({
+        title: "File too large",
+        description: "The image must be less than 5MB",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Create a blob URL to preview the image
+    const imageUrl = URL.createObjectURL(file);
+    setImagePreview(imageUrl);
+    
+    // Convert image to base64 for storage
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setEventImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSaveEvent = () => {
@@ -98,7 +136,7 @@ const AdminEvents = () => {
       title: eventTitle.trim(),
       date: eventDate.trim(),
       description: eventDescription.trim(),
-      image: eventImage.trim() || "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+      image: eventImage || "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
     };
 
     if (currentEvent) {
@@ -123,6 +161,11 @@ const AdminEvents = () => {
     setEvents(updatedEvents);
     localStorage.setItem('krc_events', JSON.stringify(updatedEvents));
     setIsDialogOpen(false);
+    
+    // Clean up any blob URLs to prevent memory leaks
+    if (imagePreview && imagePreview.startsWith('blob:')) {
+      URL.revokeObjectURL(imagePreview);
+    }
   };
 
   const handleDeleteEvent = () => {
@@ -142,11 +185,8 @@ const AdminEvents = () => {
     });
   };
 
-  const handleImageChange = () => {
-    toast({
-      title: "Image Upload",
-      description: "Image upload functionality will be available soon.",
-    });
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
   };
 
   return (
@@ -250,18 +290,42 @@ const AdminEvents = () => {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="image">Image URL</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="image"
-                  value={eventImage}
-                  onChange={(e) => setEventImage(e.target.value)}
-                  placeholder="Image URL (optional)"
-                  className="flex-grow"
-                />
-                <Button onClick={handleImageChange} type="button">
-                  Upload
-                </Button>
+              <Label htmlFor="image">Event Image</Label>
+              <div className="flex flex-col gap-2">
+                {imagePreview && (
+                  <div className="relative w-full h-40 bg-gray-100 rounded-md overflow-hidden">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <Button 
+                    onClick={handleUploadClick} 
+                    type="button"
+                    className="flex items-center gap-1"
+                  >
+                    <Upload className="h-4 w-4" /> Upload Image
+                  </Button>
+                  <Input 
+                    id="image-upload"
+                    ref={fileInputRef}
+                    type="file" 
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                  {imagePreview && (
+                    <Input
+                      id="image-url"
+                      value={eventImage.length > 30 ? eventImage.substring(0, 30) + '...' : eventImage}
+                      readOnly
+                      className="flex-grow text-xs opacity-50"
+                    />
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, Upload, Image } from "lucide-react";
 
 const AdminLeaders = () => {
   const { toast } = useToast();
@@ -42,12 +42,14 @@ const AdminLeaders = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentLeader, setCurrentLeader] = useState<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Leader form state
   const [leaderName, setLeaderName] = useState("");
   const [leaderRole, setLeaderRole] = useState("");
   const [leaderBio, setLeaderBio] = useState("");
   const [leaderImage, setLeaderImage] = useState("");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     // Load leaders from localStorage or use default
@@ -66,6 +68,7 @@ const AdminLeaders = () => {
     setLeaderRole("");
     setLeaderBio("");
     setLeaderImage("");
+    setImagePreview(null);
     setIsDialogOpen(true);
   };
 
@@ -75,12 +78,47 @@ const AdminLeaders = () => {
     setLeaderRole(leader.role);
     setLeaderBio(leader.bio || "");
     setLeaderImage(leader.image);
+    setImagePreview(leader.image);
     setIsDialogOpen(true);
   };
 
   const handleDeleteClick = (leader: any) => {
     setCurrentLeader(leader);
     setIsDeleteDialogOpen(true);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      toast({
+        title: "File too large",
+        description: "The image must be less than 5MB",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Create a blob URL to preview the image
+    const imageUrl = URL.createObjectURL(file);
+    setImagePreview(imageUrl);
+    
+    // Convert image to base64 for storage
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setLeaderImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSaveLeader = () => {
@@ -100,7 +138,7 @@ const AdminLeaders = () => {
       name: leaderName.trim(),
       role: leaderRole.trim(),
       bio: leaderBio.trim(),
-      image: leaderImage.trim() || "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+      image: leaderImage || "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
     };
 
     if (currentLeader) {
@@ -125,6 +163,11 @@ const AdminLeaders = () => {
     setLeaders(updatedLeaders);
     localStorage.setItem('krc_leaders', JSON.stringify(updatedLeaders));
     setIsDialogOpen(false);
+    
+    // Clean up any blob URLs to prevent memory leaks
+    if (imagePreview && imagePreview.startsWith('blob:')) {
+      URL.revokeObjectURL(imagePreview);
+    }
   };
 
   const handleDeleteLeader = () => {
@@ -144,11 +187,8 @@ const AdminLeaders = () => {
     });
   };
 
-  const handleImageChange = () => {
-    toast({
-      title: "Image Upload",
-      description: "Image upload functionality will be available soon.",
-    });
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
   };
 
   return (
@@ -255,17 +295,41 @@ const AdminLeaders = () => {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="image">Profile Image</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="image"
-                  value={leaderImage}
-                  onChange={(e) => setLeaderImage(e.target.value)}
-                  placeholder="Image URL"
-                  className="flex-grow"
-                />
-                <Button onClick={handleImageChange} type="button">
-                  Upload
-                </Button>
+              <div className="flex flex-col gap-2">
+                {imagePreview && (
+                  <div className="relative w-full h-40 bg-gray-100 rounded-md overflow-hidden">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <Button 
+                    onClick={handleUploadClick} 
+                    type="button"
+                    className="flex items-center gap-1"
+                  >
+                    <Upload className="h-4 w-4" /> Upload Image
+                  </Button>
+                  <Input 
+                    id="image-upload"
+                    ref={fileInputRef}
+                    type="file" 
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                  {imagePreview && (
+                    <Input
+                      id="image-url"
+                      value={leaderImage.length > 30 ? leaderImage.substring(0, 30) + '...' : leaderImage}
+                      readOnly
+                      className="flex-grow text-xs opacity-50"
+                    />
+                  )}
+                </div>
               </div>
             </div>
           </div>
