@@ -4,6 +4,7 @@ import { Calendar } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface EventCardProps {
+  id?: string;
   title: string;
   date: string;
   description: string;

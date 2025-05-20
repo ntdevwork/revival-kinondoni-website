@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import Hero from '../components/Hero';
 import ServiceTimes from '../components/ServiceTimes';
@@ -7,30 +7,48 @@ import EventCard from '../components/EventCard';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Event } from '@/components/admin/EventCard';
 
 const Index = () => {
   const { t } = useLanguage();
+  const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
 
-  const upcomingEvents = [
+  // Default events as fallback
+  const defaultEvents = [
     {
+      id: '1',
       title: "Men's Day",
       date: "May 4, 2025",
       description: "Join us for a special Men's Day service with Bishop Dr. Rogathe Z. Swai.",
       image: "/lovable-uploads/24ed29dd-2470-4442-bb92-2e387d526605.png"
     },
     {
+      id: '2',
       title: "Youth Conference",
       date: "June 15, 2025",
       description: "Annual youth conference focused on empowering the next generation.",
       image: "https://images.unsplash.com/photo-1523803326055-13445f272bf7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
     },
     {
+      id: '3',
       title: "Women's Prayer Meeting",
       date: "July 2, 2025",
       description: "Monthly women's prayer meeting focusing on family and community.",
       image: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
     },
   ];
+
+  // Load events from localStorage
+  useEffect(() => {
+    const storedEvents = localStorage.getItem('krc_events');
+    if (storedEvents) {
+      const allEvents = JSON.parse(storedEvents);
+      // Only show the first 3 events on homepage
+      setUpcomingEvents(allEvents.slice(0, 3));
+    } else {
+      setUpcomingEvents(defaultEvents);
+    }
+  }, []);
 
   return (
     <div>
@@ -82,15 +100,21 @@ const Index = () => {
             {t('upcomingEvents')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {upcomingEvents.map((event, index) => (
-              <EventCard
-                key={index}
-                title={event.title}
-                date={event.date}
-                description={event.description}
-                image={event.image}
-              />
-            ))}
+            {upcomingEvents.length > 0 ? (
+              upcomingEvents.map((event) => (
+                <EventCard
+                  key={event.id}
+                  title={event.title}
+                  date={event.date}
+                  description={event.description}
+                  image={event.image}
+                />
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-8">
+                <p className="text-lg text-gray-500">No upcoming events at this time.</p>
+              </div>
+            )}
           </div>
           <div className="mt-10 text-center">
             <Button asChild className="bg-church-orange hover:bg-church-orangeDark">
