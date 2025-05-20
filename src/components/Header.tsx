@@ -35,8 +35,15 @@ const Header = () => {
       <div className="church-container py-4">
         <div className="flex justify-between items-center">
           {/* Logo */}
-          <Link to="/" className="text-xl lg:text-2xl font-bold text-church-orange">
-            KRC<span className="hidden md:inline"> TANZANIA</span>
+          <Link to="/" className="flex items-center gap-2">
+            <img 
+              src="/lovable-uploads/650c6a50-7fdb-496b-b9aa-e14f2dffddf9.png" 
+              alt="Tanzania Assemblies of God Logo" 
+              className="h-10 w-auto"
+            />
+            <span className="text-xl lg:text-2xl font-bold text-church-orange">
+              KRC<span className="hidden md:inline"> TANZANIA</span>
+            </span>
           </Link>
 
           {/* Desktop Navigation */}

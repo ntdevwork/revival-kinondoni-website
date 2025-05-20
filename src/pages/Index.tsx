@@ -41,9 +41,16 @@ const Index = () => {
         <div className="church-container">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-2">
-              <h2 className="section-title border-l-4 border-church-orange pl-4">
-                {t('about')} Kinondoni Revival Church
-              </h2>
+              <div className="flex items-center mb-6">
+                <h2 className="section-title border-l-4 border-church-orange pl-4">
+                  {t('about')} Kinondoni Revival Church
+                </h2>
+                <img 
+                  src="/lovable-uploads/650c6a50-7fdb-496b-b9aa-e14f2dffddf9.png" 
+                  alt="Tanzania Assemblies of God Logo" 
+                  className="h-12 ml-4"
+                />
+              </div>
               <p className="text-lg mb-6">
                 Kinondoni Revival Church is a vibrant community of believers 
                 dedicated to spreading the Gospel of Jesus Christ. As part of the 

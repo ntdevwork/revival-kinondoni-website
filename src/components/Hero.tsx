@@ -20,12 +20,21 @@ const Hero: React.FC = () => {
       
       <div className="church-container relative z-10 py-12 md:py-24">
         <div className="max-w-3xl">
-          <span className="text-church-orange text-xl mb-2 block font-medium">
-            {t('welcome')}
-          </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
-            {t('churchName')}
-          </h1>
+          <div className="flex items-center mb-6">
+            <img 
+              src="/lovable-uploads/650c6a50-7fdb-496b-b9aa-e14f2dffddf9.png" 
+              alt="Tanzania Assemblies of God Logo" 
+              className="h-16 md:h-20 w-auto mr-4"
+            />
+            <div>
+              <span className="text-church-orange text-xl mb-2 block font-medium">
+                {t('welcome')}
+              </span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white">
+                {t('churchName')}
+              </h1>
+            </div>
+          </div>
           <p className="text-xl md:text-2xl text-white/90 mb-8 font-serif">
             {t('tagline')}
           </p>
