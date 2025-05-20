@@ -8,47 +8,58 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Event } from '@/components/admin/EventCard';
+import { Leader } from '@/components/admin/LeaderCard';
 
 const Index = () => {
   const { t } = useLanguage();
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
+  const [leaders, setLeaders] = useState<Leader[]>([]);
 
-  // Default events as fallback
-  const defaultEvents = [
-    {
-      id: '1',
-      title: "Men's Day",
-      date: "May 4, 2025",
-      description: "Join us for a special Men's Day service with Bishop Dr. Rogathe Z. Swai.",
-      image: "/lovable-uploads/24ed29dd-2470-4442-bb92-2e387d526605.png"
-    },
-    {
-      id: '2',
-      title: "Youth Conference",
-      date: "June 15, 2025",
-      description: "Annual youth conference focused on empowering the next generation.",
-      image: "https://images.unsplash.com/photo-1523803326055-13445f272bf7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-    },
-    {
-      id: '3',
-      title: "Women's Prayer Meeting",
-      date: "July 2, 2025",
-      description: "Monthly women's prayer meeting focusing on family and community.",
-      image: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-    },
-  ];
+  // Force refresh when localStorage changes
+  const [lastUpdate, setLastUpdate] = useState(Date.now());
 
-  // Load events from localStorage
+  // Add event listener to track localStorage changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setLastUpdate(Date.now());
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  // Load events from localStorage with cache busting
   useEffect(() => {
     const storedEvents = localStorage.getItem('krc_events');
     if (storedEvents) {
-      const allEvents = JSON.parse(storedEvents);
-      // Only show the first 3 events on homepage
-      setUpcomingEvents(allEvents.slice(0, 3));
+      try {
+        const allEvents = JSON.parse(storedEvents);
+        // Only show the first 3 events on homepage
+        setUpcomingEvents(allEvents.slice(0, 3));
+      } catch (error) {
+        console.error("Error parsing events from localStorage:", error);
+        setUpcomingEvents([]);
+      }
     } else {
-      setUpcomingEvents(defaultEvents);
+      setUpcomingEvents([]);
     }
-  }, []);
+
+    // Also load leaders
+    const storedLeaders = localStorage.getItem('krc_leaders');
+    if (storedLeaders) {
+      try {
+        const allLeaders = JSON.parse(storedLeaders);
+        setLeaders(allLeaders);
+      } catch (error) {
+        console.error("Error parsing leaders from localStorage:", error);
+        setLeaders([]);
+      }
+    } else {
+      setLeaders([]);
+    }
+  }, [lastUpdate]); // Re-run when localStorage changes are detected
 
   return (
     <div>
@@ -125,6 +136,42 @@ const Index = () => {
           </div>
         </div>
       </section>
+      
+      {/* Leaders Section */}
+      {leaders.length > 0 && (
+        <section className="bg-white py-16">
+          <div className="church-container">
+            <h2 className="section-title text-center mb-10 border-b-2 border-church-orange pb-2 inline-block">
+              {t('ourLeaders')}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {leaders.slice(0, 3).map((leader) => (
+                <div key={leader.id} className="text-center">
+                  <div className="mb-4 relative w-48 h-48 mx-auto overflow-hidden rounded-full">
+                    <img
+                      src={leader.image}
+                      alt={leader.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-1">{leader.name}</h3>
+                  <p className="text-church-orange mb-2">{leader.role}</p>
+                  {leader.bio && (
+                    <p className="text-gray-600 line-clamp-3">{leader.bio}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="mt-10 text-center">
+              <Button asChild className="bg-church-orange hover:bg-church-orangeDark">
+                <Link to="/about#leadership">
+                  {t('meetOurTeam')} <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+      )}
       
       {/* Call to Action */}
       <section className="bg-church-orange py-16 text-white">

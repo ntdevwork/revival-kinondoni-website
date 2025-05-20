@@ -2,6 +2,7 @@
 import React from 'react';
 import { Calendar } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Event } from '@/components/admin/EventCard';
 
 interface EventCardProps {
   id?: string;
