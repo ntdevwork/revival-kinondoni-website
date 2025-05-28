@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+Dockerfile
+apphosting.yml
+database.rules.json
+docker-compose.yml
+firebase.json
