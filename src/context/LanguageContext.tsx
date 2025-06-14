@@ -41,10 +41,11 @@ const translations: Translations = {
   copyright: { en: 'All Rights Reserved', sw: 'Haki Zote Zimehifadhiwa' },
   quickLinks: { en: 'Quick Links', sw: 'Viungo vya Haraka' },
   
-  // About Page
+  // About Page - NEW TRANSLATIONS ADDED
   ourVision: { en: 'Our Vision', sw: 'Maono Yetu' },
   ourMission: { en: 'Our Mission', sw: 'Misheni Yetu' },
   ourValues: { en: 'Our Values', sw: 'Maadili Yetu' },
+  ourHistory: { en: 'Our History', sw: 'Historia Yetu' },
   
   // Contact Page
   getInTouch: { en: 'Get In Touch', sw: 'Wasiliana Nasi' },
@@ -60,7 +61,7 @@ const translations: Translations = {
   viewAllEvents: { en: 'View All Events', sw: 'Ona Matukio Yote' },
   contactUs: { en: 'Contact Us', sw: 'Wasiliana Nasi' },
   
-  // Leaders section - NEW TRANSLATIONS
+  // Leaders section
   ourLeaders: { en: 'Our Leaders', sw: 'Viongozi Wetu' },
   meetOurTeam: { en: 'Meet Our Team', sw: 'Kutana na Timu Yetu' },
   churchCalendar: { en: 'Church Calendar', sw: 'Kalenda ya Kanisa' },

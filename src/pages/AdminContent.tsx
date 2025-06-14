@@ -1,11 +1,11 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import ContentImageUpload from '@/components/admin/ContentImageUpload';
 
 // Sample content structure
 const initialContent = {
@@ -43,12 +43,31 @@ const initialContent = {
   }
 };
 
+// Initial images structure
+const initialImages = {
+  homepage: {
+    hero: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+    about: "https://images.unsplash.com/photo-1438032005730-c779502df39b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+  },
+  about: {
+    history: "https://images.unsplash.com/photo-1438032005730-c779502df39b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    vision: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+  }
+};
+
 const AdminContent = () => {
   const [content, setContent] = useState(
     localStorage.getItem('krc_content') 
       ? JSON.parse(localStorage.getItem('krc_content')!) 
       : initialContent
   );
+  
+  const [images, setImages] = useState(
+    localStorage.getItem('krc_images') 
+      ? JSON.parse(localStorage.getItem('krc_images')!) 
+      : initialImages
+  );
+
   const [editingContent, setEditingContent] = useState<{
     section: string;
     field: string;
@@ -56,6 +75,10 @@ const AdminContent = () => {
     language: 'english' | 'swahili';
     page: string;
   } | null>(null);
+
+  const [imageUploadOpen, setImageUploadOpen] = useState(false);
+  const [currentImageSection, setCurrentImageSection] = useState<string>("");
+
   const { toast } = useToast();
 
   const handleEdit = (language: 'english' | 'swahili', page: string, section: string, field: string, value: string) => {
@@ -81,6 +104,9 @@ const AdminContent = () => {
     setContent(newContent);
     localStorage.setItem('krc_content', JSON.stringify(newContent));
     
+    // Trigger storage event for other components to update
+    window.dispatchEvent(new Event('storage'));
+    
     // Reset editing state
     setEditingContent(null);
     
@@ -88,6 +114,38 @@ const AdminContent = () => {
     toast({
       title: "Content Updated",
       description: "Your changes have been saved successfully.",
+    });
+  };
+
+  const handleImageUpload = (section: string) => {
+    setCurrentImageSection(section);
+    setImageUploadOpen(true);
+  };
+
+  const handleImageSaved = (section: string, imageUrl: string) => {
+    const newImages = { ...images };
+    
+    // Determine the page and section
+    if (section.includes('homepage')) {
+      const imageKey = section.replace('homepage-', '');
+      if (!newImages.homepage) newImages.homepage = {};
+      newImages.homepage[imageKey] = imageUrl;
+    } else if (section.includes('about')) {
+      const imageKey = section.replace('about-', '');
+      if (!newImages.about) newImages.about = {};
+      newImages.about[imageKey] = imageUrl;
+    }
+    
+    // Save to state and localStorage
+    setImages(newImages);
+    localStorage.setItem('krc_images', JSON.stringify(newImages));
+    
+    // Trigger storage event for other components to update
+    window.dispatchEvent(new Event('storage'));
+    
+    toast({
+      title: "Image Updated",
+      description: `${section} image has been successfully updated.`,
     });
   };
 
@@ -112,19 +170,12 @@ const AdminContent = () => {
     });
   };
 
-  const handleImageUpload = () => {
-    toast({
-      title: "Coming Soon",
-      description: "Image upload functionality will be available soon.",
-    });
-  };
-
   return (
     <div>
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Content Management</h1>
         <p className="text-gray-600 mt-1">
-          Edit website content in both English and Swahili
+          Edit website content and images in both English and Swahili
         </p>
       </div>
 
@@ -138,7 +189,14 @@ const AdminContent = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Home Page Content</CardTitle>
-              <Button onClick={handleImageUpload}>Update Images</Button>
+              <div className="flex gap-2">
+                <Button onClick={() => handleImageUpload('homepage-hero')} size="sm">
+                  Update Hero Image
+                </Button>
+                <Button onClick={() => handleImageUpload('homepage-about')} size="sm">
+                  Update About Image
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4">
@@ -150,7 +208,14 @@ const AdminContent = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>About Page Content</CardTitle>
-              <Button onClick={handleImageUpload}>Update Images</Button>
+              <div className="flex gap-2">
+                <Button onClick={() => handleImageUpload('about-history')} size="sm">
+                  Update History Image
+                </Button>
+                <Button onClick={() => handleImageUpload('about-vision')} size="sm">
+                  Update Vision Image
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4">
@@ -164,7 +229,14 @@ const AdminContent = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Maudhui ya Ukurasa wa Mwanzo</CardTitle>
-              <Button onClick={handleImageUpload}>Sasisha Picha</Button>
+              <div className="flex gap-2">
+                <Button onClick={() => handleImageUpload('homepage-hero')} size="sm">
+                  Sasisha Picha ya Hero
+                </Button>
+                <Button onClick={() => handleImageUpload('homepage-about')} size="sm">
+                  Sasisha Picha ya Kuhusu
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4">
@@ -176,7 +248,14 @@ const AdminContent = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Maudhui ya Ukurasa wa Kuhusu</CardTitle>
-              <Button onClick={handleImageUpload}>Sasisha Picha</Button>
+              <div className="flex gap-2">
+                <Button onClick={() => handleImageUpload('about-history')} size="sm">
+                  Sasisha Picha ya Historia
+                </Button>
+                <Button onClick={() => handleImageUpload('about-vision')} size="sm">
+                  Sasisha Picha ya Maono
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4">
@@ -222,12 +301,20 @@ const AdminContent = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Image Upload Dialog */}
+      <ContentImageUpload
+        isOpen={imageUploadOpen}
+        onOpenChange={setImageUploadOpen}
+        section={currentImageSection}
+        onImageSaved={handleImageSaved}
+      />
       
       <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-lg">
         <h3 className="font-medium text-blue-800">Content Management Instructions</h3>
         <p className="text-blue-700 text-sm mt-1">
-          Click on any content section above to edit. Changes will be saved automatically and 
-          immediately reflected on the public website.
+          Click on any content section to edit text, or use the image buttons to update section images. 
+          Changes are saved automatically and reflected immediately on the public website.
         </p>
       </div>
     </div>
