@@ -59,6 +59,16 @@ const translations: Translations = {
   upcomingEvents: { en: 'Upcoming Events', sw: 'Matukio Yajayo' },
   viewAllEvents: { en: 'View All Events', sw: 'Ona Matukio Yote' },
   contactUs: { en: 'Contact Us', sw: 'Wasiliana Nasi' },
+  
+  // Leaders section - NEW TRANSLATIONS
+  ourLeaders: { en: 'Our Leaders', sw: 'Viongozi Wetu' },
+  meetOurTeam: { en: 'Meet Our Team', sw: 'Kutana na Timu Yetu' },
+  churchCalendar: { en: 'Church Calendar', sw: 'Kalenda ya Kanisa' },
+  noUpcomingEvents: { en: 'No upcoming events at this time.', sw: 'Hakuna matukio yajayo kwa sasa.' },
+  calendarDescription: { en: 'For a complete view of our church activities and events, please view our full calendar or contact the church office.', sw: 'Kwa mwongozo kamili wa shughuli na matukio ya kanisa letu, tafadhali angalia kalenda yetu kamili au wasiliana na ofisi ya kanisa.' },
+  aboutChurchDescription: { en: 'Kinondoni Revival Church is a vibrant community of believers dedicated to spreading the Gospel of Jesus Christ. As part of the Tanzania Assemblies of God, we strive to create an environment where people can encounter God and grow spiritually.', sw: 'Kanisa la Uamsho la Kinondoni ni jumuiya hai ya waumini waliojitolea kueneza Injili ya Yesu Kristo. Kama sehemu ya Tanzania Assemblies of God, tunajitahidi kuunda mazingira ambapo watu wanaweza kukutana na Mungu na kukua kiroho.' },
+  aboutChurchDescription2: { en: 'Our church focuses on authentic worship, biblical teaching, community service, and missions both locally and globally. We believe in the power of prayer and the importance of fellowship among believers.', sw: 'Kanisa letu linazingatia ibada ya kweli, mafundisho ya Kibiblia, huduma ya kijamii, na misheni za ndani na nje ya nchi. Tunaamini nguvu ya maombi na umuhimu wa ushirika miongoni mwa waumini.' },
+  joinUsDescription: { en: 'We\'d love to welcome you to our church family. Join us for our Sunday services and experience God\'s presence.', sw: 'Tungependa kukukaribisha kwenye familia yetu ya kanisa. Jiunge nasi katika ibada zetu za Jumapili na uhisi uwepo wa Mungu.' },
 };
 
 interface LanguageContextType {

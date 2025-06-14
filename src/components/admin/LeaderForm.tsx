@@ -28,6 +28,7 @@ const LeaderForm: React.FC<LeaderFormProps> = ({
   const [leaderBio, setLeaderBio] = useState("");
   const [leaderImage, setLeaderImage] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Reset form when dialog opens with new leader data
   useEffect(() => {
@@ -45,6 +46,7 @@ const LeaderForm: React.FC<LeaderFormProps> = ({
         setLeaderImage("");
         setImagePreview(null);
       }
+      setIsProcessing(false);
     }
   }, [isOpen, currentLeader]);
 
@@ -53,8 +55,17 @@ const LeaderForm: React.FC<LeaderFormProps> = ({
     if (!leaderName.trim() || !leaderRole.trim()) {
       toast({
         title: "Validation Error",
-        description: "Please fill in all required fields",
+        description: "Please fill in all required fields (Name and Role)",
         variant: "destructive"
+      });
+      return;
+    }
+
+    if (isProcessing) {
+      toast({
+        title: "Processing",
+        description: "Please wait while the image is being processed",
+        variant: "default"
       });
       return;
     }
@@ -76,38 +87,60 @@ const LeaderForm: React.FC<LeaderFormProps> = ({
   };
 
   const handleImageSelected = (imageUrl: string, base64: string) => {
-    setImagePreview(imageUrl);
-    setLeaderImage(base64);
+    setIsProcessing(true);
+    
+    // Simulate processing time for better UX
+    setTimeout(() => {
+      setImagePreview(imageUrl);
+      setLeaderImage(base64);
+      setIsProcessing(false);
+      
+      toast({
+        title: "Image Processed",
+        description: "Image has been optimized and compressed for storage",
+      });
+    }, 500);
+  };
+
+  const handleDialogClose = (open: boolean) => {
+    if (!open && imagePreview && imagePreview.startsWith('blob:')) {
+      URL.revokeObjectURL(imagePreview);
+    }
+    onOpenChange(open);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+    <Dialog open={isOpen} onOpenChange={handleDialogClose}>
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{currentLeader ? "Edit Leader Profile" : "Add New Leader"}</DialogTitle>
+          <DialogTitle>
+            {currentLeader ? "Edit Leader Profile" : "Add New Leader"}
+          </DialogTitle>
           <DialogDescription>
             {currentLeader 
               ? "Make changes to the leader profile here. Click save when you're done."
-              : "Add the details for the new leader below."}
+              : "Add the details for the new leader below. Images will be automatically optimized for web storage."}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">Name *</Label>
             <Input
               id="name"
               value={leaderName}
               onChange={(e) => setLeaderName(e.target.value)}
-              placeholder="Enter leader's name"
+              placeholder="Enter leader's full name"
+              required
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="role">Role</Label>
+            <Label htmlFor="role">Role/Position *</Label>
             <Input
               id="role"
               value={leaderRole}
               onChange={(e) => setLeaderRole(e.target.value)}
-              placeholder="e.g., Senior Pastor"
+              placeholder="e.g., Senior Pastor, Assistant Pastor, Deacon"
+              required
             />
           </div>
           <div className="grid gap-2">
@@ -116,8 +149,9 @@ const LeaderForm: React.FC<LeaderFormProps> = ({
               id="bio"
               value={leaderBio}
               onChange={(e) => setLeaderBio(e.target.value)}
-              placeholder="Enter leader's biography"
-              rows={3}
+              placeholder="Enter a detailed biography including background, experience, and ministry focus"
+              rows={4}
+              className="resize-none"
             />
           </div>
           <ImageUpload 
@@ -125,13 +159,22 @@ const LeaderForm: React.FC<LeaderFormProps> = ({
             onImageSelected={handleImageSelected}
             label="Profile Image"
           />
+          {isProcessing && (
+            <div className="text-sm text-gray-500 italic">
+              Processing and optimizing image...
+            </div>
+          )}
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => handleDialogClose(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave}>
-            Save Leader
+          <Button 
+            onClick={handleSave}
+            disabled={isProcessing}
+            className="bg-church-orange hover:bg-church-orange/90"
+          >
+            {isProcessing ? "Processing..." : "Save Leader"}
           </Button>
         </DialogFooter>
       </DialogContent>

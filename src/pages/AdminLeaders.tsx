@@ -14,21 +14,21 @@ const defaultLeaders = [
     name: 'Bishop Dr. Rogathe Z. Swai',
     role: 'Senior Pastor',
     image: 'https://images.unsplash.com/photo-1548449112-96a38a643324?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    bio: 'Bishop Dr. Rogathe has been serving as our Senior Pastor since 2005. With over 30 years in ministry, he is passionate about spreading the Gospel.'
+    bio: 'Bishop Dr. Rogathe has been serving as our Senior Pastor since 2005. With over 30 years in ministry, he is passionate about spreading the Gospel and leading the church with wisdom and compassion. He holds a Doctorate in Theology and has been instrumental in church growth and community outreach programs.'
   },
   {
     id: '2',
     name: 'Rev. Mary Johnson',
     role: 'Assistant Pastor',
     image: 'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    bio: 'Rev. Mary oversees our youth and women ministries. She joined Kinondoni Revival Church in 2012 and has been instrumental in community outreach.'
+    bio: 'Rev. Mary oversees our youth and women ministries. She joined Kinondoni Revival Church in 2012 and has been instrumental in community outreach programs. Her heart for service and dedication to mentoring young people has made a significant impact in our community.'
   },
   {
     id: '3',
     name: 'Deacon James Wilson',
     role: 'Head Deacon',
     image: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    bio: 'Deacon James coordinates our welfare and service ministries. He has been a faithful member of the church since its founding.'
+    bio: 'Deacon James coordinates our welfare and service ministries. He has been a faithful member of the church since its founding and brings decades of experience in community service. His leadership in organizing church activities and supporting families in need is truly commendable.'
   },
 ];
 
@@ -45,7 +45,14 @@ const AdminLeaders = () => {
     // Load leaders from localStorage or use default
     const storedLeaders = localStorage.getItem('krc_leaders');
     if (storedLeaders) {
-      setLeaders(JSON.parse(storedLeaders));
+      try {
+        const parsedLeaders = JSON.parse(storedLeaders);
+        setLeaders(parsedLeaders);
+      } catch (error) {
+        console.error('Error parsing stored leaders:', error);
+        setLeaders(defaultLeaders);
+        localStorage.setItem('krc_leaders', JSON.stringify(defaultLeaders));
+      }
     } else {
       setLeaders(defaultLeaders);
       localStorage.setItem('krc_leaders', JSON.stringify(defaultLeaders));
@@ -77,20 +84,24 @@ const AdminLeaders = () => {
       );
       toast({
         title: "Leader Updated",
-        description: "The leader profile has been successfully updated.",
+        description: `${leader.name}'s profile has been successfully updated.`,
       });
     } else {
       // Add new leader
       updatedLeaders = [...leaders, leader];
       toast({
         title: "Leader Added",
-        description: "The new leader profile has been successfully created.",
+        description: `${leader.name}'s profile has been successfully created.`,
       });
     }
 
     // Update state and localStorage
     setLeaders(updatedLeaders);
     localStorage.setItem('krc_leaders', JSON.stringify(updatedLeaders));
+    
+    // Trigger storage event for other components to update
+    window.dispatchEvent(new Event('storage'));
+    
     setIsDialogOpen(false);
   };
 
@@ -103,11 +114,15 @@ const AdminLeaders = () => {
     // Update state and localStorage
     setLeaders(updatedLeaders);
     localStorage.setItem('krc_leaders', JSON.stringify(updatedLeaders));
+    
+    // Trigger storage event for other components to update
+    window.dispatchEvent(new Event('storage'));
+    
     setIsDeleteDialogOpen(false);
     
     toast({
       title: "Leader Deleted",
-      description: "The leader profile has been successfully removed.",
+      description: `${currentLeader.name}'s profile has been successfully removed.`,
     });
   };
 
@@ -116,7 +131,9 @@ const AdminLeaders = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold">Leaders Management</h1>
-          <p className="text-gray-600 mt-1">Add, edit, or remove church leadership profiles</p>
+          <p className="text-gray-600 mt-1">
+            Add, edit, or remove church leadership profiles. All images are automatically optimized and stored as compressed base64.
+          </p>
         </div>
         <Button 
           className="bg-church-orange hover:bg-church-orange/90 flex items-center gap-2"
@@ -157,7 +174,7 @@ const AdminLeaders = () => {
         onOpenChange={setIsDeleteDialogOpen}
         onConfirm={handleDeleteLeader}
         title="Confirm Deletion"
-        description="Are you sure you want to delete this leader profile? This action cannot be undone."
+        description={`Are you sure you want to delete ${currentLeader?.name}'s profile? This action cannot be undone.`}
         itemName="Profile"
       />
     </div>

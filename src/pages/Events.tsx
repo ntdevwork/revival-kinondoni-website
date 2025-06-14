@@ -46,7 +46,10 @@ const Events = () => {
             {t('events')}
           </h1>
           <p className="text-xl text-white/90 max-w-3xl">
-            Join us for these upcoming events and special services at Kinondoni Revival Church.
+            {t('language') === 'sw' 
+              ? 'Jiunge nasi katika matukio haya yajayo na ibada maalum katika Kanisa la Uamsho la Kinondoni.'
+              : 'Join us for these upcoming events and special services at Kinondoni Revival Church.'
+            }
           </p>
         </div>
       </section>
@@ -68,7 +71,7 @@ const Events = () => {
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-lg text-gray-500">No upcoming events at this time.</p>
+              <p className="text-lg text-gray-500">{t('noUpcomingEvents')}</p>
             </div>
           )}
         </div>
@@ -77,16 +80,15 @@ const Events = () => {
       {/* Calendar */}
       <section className="py-16 bg-gray-100">
         <div className="church-container text-center">
-          <h2 className="section-title mb-8">Church Calendar</h2>
+          <h2 className="section-title mb-8">{t('churchCalendar')}</h2>
           <p className="text-lg mb-8">
-            For a complete view of our church activities and events, please view our full calendar 
-            or contact the church office.
+            {t('calendarDescription')}
           </p>
           <div className="flex justify-center">
             <iframe 
               src="https://calendar.google.com/calendar/embed?height=600&wkst=1&bgcolor=%23F47920&ctz=Africa%2FDar_es_Salaam" 
               className="w-full max-w-4xl h-96 border-2 border-church-orange rounded-lg"
-              title="Church Calendar"
+              title={t('churchCalendar')}
             ></iframe>
           </div>
         </div>

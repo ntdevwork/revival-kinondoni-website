@@ -72,7 +72,7 @@ const Index = () => {
             <div className="md:col-span-2">
               <div className="flex items-center mb-6">
                 <h2 className="section-title border-l-4 border-church-orange pl-4">
-                  {t('about')} Kinondoni Revival Church
+                  {t('about')} {t('churchName')}
                 </h2>
                 <img 
                   src="/lovable-uploads/650c6a50-7fdb-496b-b9aa-e14f2dffddf9.png" 
@@ -81,15 +81,10 @@ const Index = () => {
                 />
               </div>
               <p className="text-lg mb-6">
-                Kinondoni Revival Church is a vibrant community of believers 
-                dedicated to spreading the Gospel of Jesus Christ. As part of the 
-                Tanzania Assemblies of God, we strive to create an environment where 
-                people can encounter God and grow spiritually.
+                {t('aboutChurchDescription')}
               </p>
               <p className="text-lg mb-6">
-                Our church focuses on authentic worship, biblical teaching, 
-                community service, and missions both locally and globally. We believe 
-                in the power of prayer and the importance of fellowship among believers.
+                {t('aboutChurchDescription2')}
               </p>
               <Button asChild className="bg-church-orange hover:bg-church-orangeDark">
                 <Link to="/about">
@@ -123,7 +118,7 @@ const Index = () => {
               ))
             ) : (
               <div className="col-span-3 text-center py-8">
-                <p className="text-lg text-gray-500">No upcoming events at this time.</p>
+                <p className="text-lg text-gray-500">{t('noUpcomingEvents')}</p>
               </div>
             )}
           </div>
@@ -178,7 +173,7 @@ const Index = () => {
         <div className="church-container text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">{t('joinUs')}</h2>
           <p className="text-xl mb-8 max-w-3xl mx-auto">
-            We'd love to welcome you to our church family. Join us for our Sunday services and experience God's presence.
+            {t('joinUsDescription')}
           </p>
           <Button asChild variant="outline" className="bg-white text-church-orange border-white hover:bg-gray-100">
             <Link to="/contact">
