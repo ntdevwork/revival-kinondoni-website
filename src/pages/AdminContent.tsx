@@ -1,11 +1,11 @@
+
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import ContentEditDialog from '@/components/admin/ContentEditDialog';
+import ContentSection from '@/components/admin/ContentSection';
 import ContentImageUpload from '@/components/admin/ContentImageUpload';
+import ContentManagementInstructions from '@/components/admin/ContentManagementInstructions';
 
 // Sample content structure
 const initialContent = {
@@ -149,25 +149,10 @@ const AdminContent = () => {
     });
   };
 
-  const renderContentItems = (language: 'english' | 'swahili', page: string, items: any) => {
-    return Object.keys(items).map((key) => {
-      const value = items[key];
-      const sectionName = key.replace(/Title$|Content$|Message$|Description$/, '');
-      const fieldType = key.includes('Title') ? 'Title' : 
-                        key.includes('Content') ? 'Content' : 
-                        key.includes('Message') ? 'Message' : 'Description';
-      
-      return (
-        <div 
-          key={key} 
-          className="cursor-pointer p-3 border rounded-md hover:bg-gray-50"
-          onClick={() => handleEdit(language, page, sectionName, fieldType, value)}
-        >
-          <div className="font-medium">{value.length > 30 ? value.substring(0, 30) + '...' : value}</div>
-          <div className="text-sm text-gray-500">{sectionName} - {fieldType}</div>
-        </div>
-      );
-    });
+  const handleValueChange = (value: string) => {
+    if (editingContent) {
+      setEditingContent({ ...editingContent, value });
+    }
   };
 
   return (
@@ -186,123 +171,65 @@ const AdminContent = () => {
         </TabsList>
         
         <TabsContent value="english" className="space-y-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Home Page Content</CardTitle>
-              <div className="flex gap-2">
-                <Button onClick={() => handleImageUpload('homepage-hero')} size="sm">
-                  Update Hero Image
-                </Button>
-                <Button onClick={() => handleImageUpload('homepage-about')} size="sm">
-                  Update About Image
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4">
-                {renderContentItems('english', 'homepage', content.english.homepage)}
-              </div>
-            </CardContent>
-          </Card>
+          <ContentSection
+            title="Home Page Content"
+            content={content.english.homepage}
+            language="english"
+            page="homepage"
+            imageButtons={[
+              { label: "Update Hero Image", onClick: () => handleImageUpload('homepage-hero') },
+              { label: "Update About Image", onClick: () => handleImageUpload('homepage-about') }
+            ]}
+            onEditContent={handleEdit}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>About Page Content</CardTitle>
-              <div className="flex gap-2">
-                <Button onClick={() => handleImageUpload('about-history')} size="sm">
-                  Update History Image
-                </Button>
-                <Button onClick={() => handleImageUpload('about-vision')} size="sm">
-                  Update Vision Image
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4">
-                {renderContentItems('english', 'about', content.english.about)}
-              </div>
-            </CardContent>
-          </Card>
+          <ContentSection
+            title="About Page Content"
+            content={content.english.about}
+            language="english"
+            page="about"
+            imageButtons={[
+              { label: "Update History Image", onClick: () => handleImageUpload('about-history') },
+              { label: "Update Vision Image", onClick: () => handleImageUpload('about-vision') }
+            ]}
+            onEditContent={handleEdit}
+          />
         </TabsContent>
 
         <TabsContent value="swahili" className="space-y-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Maudhui ya Ukurasa wa Mwanzo</CardTitle>
-              <div className="flex gap-2">
-                <Button onClick={() => handleImageUpload('homepage-hero')} size="sm">
-                  Sasisha Picha ya Hero
-                </Button>
-                <Button onClick={() => handleImageUpload('homepage-about')} size="sm">
-                  Sasisha Picha ya Kuhusu
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4">
-                {renderContentItems('swahili', 'homepage', content.swahili.homepage)}
-              </div>
-            </CardContent>
-          </Card>
+          <ContentSection
+            title="Maudhui ya Ukurasa wa Mwanzo"
+            content={content.swahili.homepage}
+            language="swahili"
+            page="homepage"
+            imageButtons={[
+              { label: "Sasisha Picha ya Hero", onClick: () => handleImageUpload('homepage-hero') },
+              { label: "Sasisha Picha ya Kuhusu", onClick: () => handleImageUpload('homepage-about') }
+            ]}
+            onEditContent={handleEdit}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Maudhui ya Ukurasa wa Kuhusu</CardTitle>
-              <div className="flex gap-2">
-                <Button onClick={() => handleImageUpload('about-history')} size="sm">
-                  Sasisha Picha ya Historia
-                </Button>
-                <Button onClick={() => handleImageUpload('about-vision')} size="sm">
-                  Sasisha Picha ya Maono
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4">
-                {renderContentItems('swahili', 'about', content.swahili.about)}
-              </div>
-            </CardContent>
-          </Card>
+          <ContentSection
+            title="Maudhui ya Ukurasa wa Kuhusu"
+            content={content.swahili.about}
+            language="swahili"
+            page="about"
+            imageButtons={[
+              { label: "Sasisha Picha ya Historia", onClick: () => handleImageUpload('about-history') },
+              { label: "Sasisha Picha ya Maono", onClick: () => handleImageUpload('about-vision') }
+            ]}
+            onEditContent={handleEdit}
+          />
         </TabsContent>
       </Tabs>
 
-      {/* Edit Dialog */}
-      <Dialog open={!!editingContent} onOpenChange={(open) => !open && setEditingContent(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Content</DialogTitle>
-            <DialogDescription>
-              Make changes to the selected content below.
-            </DialogDescription>
-          </DialogHeader>
-          
-          {editingContent && (
-            <div className="py-4">
-              <label className="block text-sm font-medium mb-2">
-                {editingContent.section} {editingContent.field} 
-                ({editingContent.language === 'english' ? 'English' : 'Swahili'})
-              </label>
-              <Textarea
-                value={editingContent.value}
-                onChange={(e) => setEditingContent({...editingContent, value: e.target.value})}
-                rows={5}
-                className="w-full border rounded-md p-2"
-              />
-            </div>
-          )}
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingContent(null)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave}>
-              Save Changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ContentEditDialog
+        editingContent={editingContent}
+        onClose={() => setEditingContent(null)}
+        onSave={handleSave}
+        onValueChange={handleValueChange}
+      />
 
-      {/* Image Upload Dialog */}
       <ContentImageUpload
         isOpen={imageUploadOpen}
         onOpenChange={setImageUploadOpen}
@@ -310,13 +237,7 @@ const AdminContent = () => {
         onImageSaved={handleImageSaved}
       />
       
-      <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-lg">
-        <h3 className="font-medium text-blue-800">Content Management Instructions</h3>
-        <p className="text-blue-700 text-sm mt-1">
-          Click on any content section to edit text, or use the image buttons to update section images. 
-          Changes are saved automatically and reflected immediately on the public website.
-        </p>
-      </div>
+      <ContentManagementInstructions />
     </div>
   );
 };
